@@ -1,0 +1,7 @@
+policy_module(mls_test, 1.0.0)
+
+role mls_test_r;
+role user_r;
+userdom_base_user_template(mls_test)
+gen_user(mls_test_u, user, mls_test_r user_r, s0, s0 - mls_systemhigh, mcs_allcats)
+

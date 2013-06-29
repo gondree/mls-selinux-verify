@@ -1,0 +1,51 @@
+module mls_test_privileges 1.1;
+
+require {
+	type mls_test_t;
+	type user_t;
+	type user_devpts_t;
+	type tmpfs_t;
+	type user_home_t;
+
+	sensitivity s0;
+	sensitivity s15;
+	category c0;
+	category c1023;
+
+	class process { sigchld setexec transition };
+	class dir { read write };
+	class file { read append };
+
+	attribute mlsfdshare;
+	attribute mlsprocsetsl;
+	attribute mlsfduse;
+	attribute mlsfilewrite;
+	attribute mlsprocwrite;
+	attribute privrangetrans;
+	attribute mlsrangetrans;
+}
+allow mls_test_t self:process { setexec transition };
+
+# unpriv child can be reaped by test runner
+allow user_t mls_test_t:process { sigchld };
+
+typeattribute mls_test_t mlsprocsetsl;
+typeattribute mls_test_t mlsfduse;
+typeattribute mls_test_t mlsprocwrite;
+typeattribute mls_test_t mlsfilewrite;
+typeattribute mls_test_t privrangetrans;
+
+# exec'd unpriv process can inherit stdin, etc
+typeattribute mls_test_t mlsfdshare;
+
+# test can output to screen
+typeattribute user_devpts_t mlsfilewrite;
+
+# allow unpriv user to use POSIX shm at /dev/shm
+allow user_t tmpfs_t:dir { read write };
+
+# allow unpriv user to write to files in ~/
+allow user_t user_home_t:file { read append };
+
+range_transition mls_test_t user_t:process s0 - s15:c0.c1023;
+typeattribute user_t mlsrangetrans;
