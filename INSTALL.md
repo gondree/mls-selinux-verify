@@ -41,11 +41,11 @@ The test suite has been used with the following:
 
 - Restart in permissive/single user mode: Use the command `reboot`; **directly after this command, the grub boot menu will appear: interrupt it by pressing 'a'** and then add the argument `single enforcing=0` to the end of the boot command, and press return. When the root prompt appears, enter runlevel 3 using the command `init 3`.
 
- - At the prompt, login as root. Then, change your role:
+- At the prompt, login as root. Then, change your role:
  
         $ newrole -r secadm_r
 
- - Reconfigure the allowable login range and delete the temporary user:
+- Reconfigure the allowable login range and delete the temporary user:
 
         $ semanage user -m -r s0-s15:c0.c1023 user_u
         $ userdel -r temporary
@@ -53,32 +53,32 @@ The test suite has been used with the following:
 
 ### Install the policy for the test runner
 
- - Clone/checkout/copy/untar/etc the project files and navigate to the directory.
+- Clone/checkout/copy/untar/etc the project files and navigate to the directory.
  
- - Build and install the policy files, introducing the domain `mls_test_u`
+- Build and install the policy files, introducing the domain `mls_test_u`
  
         $ make policy
         $ make install-policy
 
 ### Install the user that drives the tests
 
- - Configure the default context for `mls_test_u`, by editing `/etc/selinux/mls/contexts/default_contexts` and alter the appropriate line to the following (*order is important*):
+- Configure the default context for `mls_test_u`, by editing `/etc/selinux/mls/contexts/default_contexts` and alter the appropriate line to the following (*order is important*):
  
         system_r:local_login_t:s0   mls_test_r:mls_test_t:s0-s15:c0.c1023 user_r:user_t:s0
 
- - Configure the default type associated with the `mls_test_r` role, by editing `/etc/selinux/mls/contexts/default_type` and add the following line
+- Configure the default type associated with the `mls_test_r` role, by editing `/etc/selinux/mls/contexts/default_type` and add the following line
  
         mls_test_r:mls_test_t
 
- - Copy the `user_u` info into `mls_test_u` by doing the following:
+- Copy the `user_u` info into `mls_test_u` by doing the following:
  
         $ cp /etc/selinux/mls/contexts/users/user_u /etc/selinux/mls/contexts/users/mls_test_u
 
- - Make `mls_test_t` a permissive domain:
+- Make `mls_test_t` a permissive domain:
  
         $ semanage permissive -a mls_test_t
 
- - Create a test user:
+- Create a test user:
 
         $ useradd -d /home/testuser -m -Z mls_test_u testuser
         $ semanage login -m -s user_u -r s0-s15:c0.c1023 testuser
